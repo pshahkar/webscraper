@@ -2,18 +2,15 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import glob
 import os
-
 import re
 
+dir_path = os.path.dirname(os.path.realpath(__file__))
 max_subpages = 10
 with open('keywords_search_all_languages.txt') as f:
-    # contents = re.sub('\s+', '', f.read())
-    # covid_words = contents.split("OR")
     contents = re.sub('\s+', '', f.read())
     covid_words = re.findall(r'"([^"]*)"', contents)
     print(covid_words)
 
-dir_path = os.path.dirname(os.path.realpath(__file__))
 
 def wayback_machine_scraper(url):
     for month in range(1, 10):
@@ -27,9 +24,6 @@ def wayback_machine_scraper(url):
 
 def link_finder(soup, date, url):
     links = []
-
-    # <a> is the html element used to display an hypertext reference link (clickable anchor) in <body> part (content) of the page,,
-    # while <link> is used in <head> part (document meta informations) to link an external ressource file to the document...
     merged_list = soup.findAll('a') + soup.findAll('link')  # all hyperlinks in the body and head parts.
     combined_list = list(set(merged_list))
     # print(combined_list)
@@ -41,22 +35,20 @@ def link_finder(soup, date, url):
                     if any(word in link.get('href') for word in ['css', 'png', '.js', 'ico', 'digest']) == False:
                         pre_link = link.get('href').split('/web/', 1)[1]
                         if 'https://' in pre_link:
-                            links.append(pre_link.split('https://', 1)[1])  #### here can also work
+                            links.append(pre_link.split('https://', 1)[1]) 
                         if 'http://' in pre_link:
-                            links.append(pre_link.split('http://', 1)[1])  #### here can also work
+                            links.append(pre_link.split('http://', 1)[1])  
 
             else:
                 if '/web/' + str(date) + '/https://www.' + url in link.get('href') or '/web/' + str(date) + '/http://www.' + url in link.get('href'):  # only website links
                     if any(word in link.get('href') for word in ['css', 'png', '.js', 'ico', 'digest']) == False:
                         pre_link = link.get('href').split('/web/', 1)[1]
                         if 'https://' in pre_link:
-                            links.append(pre_link.split('https://', 1)[1]) #### here can also work
+                            links.append(pre_link.split('https://', 1)[1]) 
                         if 'http://' in pre_link:
-                            links.append(pre_link.split('http://', 1)[1]) #### here can also work
+                            links.append(pre_link.split('http://', 1)[1]) 
 
-
-    links = list(set(links)) ## remove duplicates without using set: keep the order in the list, test if set keeps the order
-
+    links = list(set(links)) ## remove duplicates 
     return links
 
 
@@ -75,7 +67,6 @@ def subpage_scraper(links):
     max_index = min(len(links_copy), max_subpages - i)
     for link in links_copy[:max_index]:
         subpage_minilinks = subpage_minilinks + link + " "
-
     wayback_machine_scraper(subpage_minilinks)
 
 
